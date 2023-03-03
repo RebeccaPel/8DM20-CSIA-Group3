@@ -25,7 +25,7 @@ if __name__ == '__main__':
     dice_scores = {}
 
     Parameter_files = ["Par0001bspline04.txt", "Par0001bspline64.txt", "Parameters_BSpline.txt"]
-    train = ['p102', 'p107', 'p108', 'p109', 'p115']  # , 'p108', 'p109', 'p115'
+    train = ['p102', 'p107', 'p108', 'p109', 'p115']
 
     for train_patient in train:
         if os.path.exists(f"results/{train_patient}") is False:
@@ -33,7 +33,6 @@ if __name__ == '__main__':
 
         for patient in patients:
             if patient[0] == 'p' and patient != train_patient:
-
                 parameters = os.path.join('ImagesforPractical/ImagesforPractical/MR/', Parameter_files[2])
 
                 path_fixed = os.path.abspath(f"TrainingData/{train_patient}")
@@ -89,3 +88,4 @@ if __name__ == '__main__':
                         np.sum(moving_label) + np.sum(transformed_bsplined_segmentation))
 
                 dice_scores[train_patient, patient] = dice_score
+        print(dice_scores)
