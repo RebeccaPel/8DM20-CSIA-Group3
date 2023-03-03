@@ -15,7 +15,6 @@ ELASTIX_PATH = os.path.join(
 TRANSFORMIX_PATH = os.path.join(
     r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master/Elastix/elastix-5.0.1-win64/transformix.exe')
 
-
 if not os.path.exists(ELASTIX_PATH):
     raise IOError('Elastix cannot be found, please set the correct ELASTIX_PATH.')
 if not os.path.exists(TRANSFORMIX_PATH):
