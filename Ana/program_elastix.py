@@ -51,11 +51,12 @@ if __name__ == '__main__':
                     sitk.ReadImage(os.path.join("results", train_patient, patient, "result.0.mhd")))
                 transformed_bsplined_segmentation = sitk.GetArrayFromImage(
                     sitk.ReadImage(os.path.join("results", train_patient, patient, "result.mhd")))
-
+                '
+                # uncomment to see the plots
                 """
                 slice_nr = 30
                 # display images and graphs
-                fig, axarr = plt.subplots(1, 5)
+                fig, axarr = plt.subplots(1, 4)
                 plt.suptitle('Slice number: ' + str(slice_nr), fontsize=16)
                 axarr[0].imshow(fixed_image[slice_nr, :, :], cmap='gray')
                 axarr[0].imshow(fixed_label[slice_nr, :, :], alpha=0.5 * (fixed_label[slice_nr, :, :] > 0),
