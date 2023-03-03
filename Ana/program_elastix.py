@@ -23,7 +23,7 @@ if __name__ == '__main__':
     patients = os.listdir(os.path.join("./TrainingData/"))
 
     dice_scores = {}
-
+    # change to the parameter file to use
     Parameter_files = ["Par0001bspline04.txt", "Par0001bspline64.txt", "Parameters_BSpline.txt"]
     train = ['p102', 'p107', 'p108', 'p109', 'p115']
 
@@ -33,6 +33,7 @@ if __name__ == '__main__':
 
         for patient in patients:
             if patient[0] == 'p' and patient != train_patient:
+                # change path for other parameters
                 parameters = os.path.join('ImagesforPractical/ImagesforPractical/MR/', Parameter_files[2])
 
                 path_fixed = os.path.abspath(f"TrainingData/{train_patient}")
