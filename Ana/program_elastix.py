@@ -24,8 +24,8 @@ if __name__ == '__main__':
 
     dice_scores = {}
     # change to the parameter file to use
-    Parameter_files = ["Par0001bspline04.txt", "Par0001bspline64.txt", "Parameters_BSpline.txt"]
-    train = ['p102', 'p107', 'p108', 'p109', 'p115']
+    Parameter_files = ["Par0001bspline04.txt", "Par0001bspline64.txt", "Parameters_BSpline.txt"] # chosen randomly
+    train = ['p102', 'p107', 'p108', 'p109', 'p115'] # chosen randomly
 
     for train_patient in train:
         if os.path.exists(f"results/{train_patient}") is False:
