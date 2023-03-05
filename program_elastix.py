@@ -8,18 +8,35 @@ import pandas as pd
 import subprocess
 from elastix_registration import elastix_registration
 
+# Main path to folder where elastix-5.0.x-win64 and TrainingData is found
+# Uncomment which applies to you
 
-# make sure you select right your .exe paths
-ELASTIX_PATH = os.path.join(
-    r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master/Elastix/elastix-5.0.1-win64/elastix.exe')
-TRANSFORMIX_PATH = os.path.join(
-    r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master/Elastix/elastix-5.0.1-win64/transformix.exe')
+# make sure you select right your .exe paths -> Uncomment your name
+# Flavius:
+# personal_path = os.path.join(
+#     r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master)
+# Rebecca:
+personal_path = os.path.join(
+    r'C:/Users/20192157/OneDrive - TU Eindhoven/Documents/Master/8DM20 Capita selecta in medical image analysis')
+# Ana:
+# personal_path = os.path.join()
+# Karlijn:
+# personal_path = os.path.join()
+# Laura:
+# personal_path = os.path.join()
+# ELASTIX_PATH = os.path.join(
+#     r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master/Elastix/elastix-5.0.1-win64/elastix.exe')
+# TRANSFORMIX_PATH = os.path.join(
+#     r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master/Elastix/elastix-5.0.1-win64/transformix.exe')
+
+
+ELASTIX_PATH = personal_path + '/elastix-5.0.0-win64/elastix.exe'
+TRANSFORMIX_PATH = personal_path + '/elastix-5.0.0-win64/transformix.exe'
 
 if not os.path.exists(ELASTIX_PATH):
     raise IOError('Elastix cannot be found, please set the correct ELASTIX_PATH.')
 if not os.path.exists(TRANSFORMIX_PATH):
     raise IOError('Transformix cannot be found, please set the correct TRANSFORMIX_PATH.')
-
 
 
 if __name__ == "__main__":
@@ -28,21 +45,21 @@ if __name__ == "__main__":
         os.mkdir('results')
 
     # choosing patient 102 as fixed image
-    image_1 = sitk.ReadImage("./TrainingData/p102/mr_bffe.mhd")
-    image_1_seg = sitk.ReadImage("./TrainingData/p102/prostaat.mhd")
+    image_1 = sitk.ReadImage(personal_path + "/TrainingData/p102/mr_bffe.mhd")
+    image_1_seg = sitk.ReadImage(personal_path + "/TrainingData/p102/prostaat.mhd")
     fixed_image = sitk.GetArrayViewFromImage(image_1)
     fixed_image_seg = sitk.GetArrayViewFromImage(image_1_seg)
 
     # for now, considering patient 120 as moving image
-    image_2 = sitk.ReadImage("./TrainingData/p120/mr_bffe.mhd")
+    image_2 = sitk.ReadImage(personal_path + "/TrainingData/p120/mr_bffe.mhd")
     moving_image = sitk.GetArrayViewFromImage(image_2)
 
     # Perform_elastix_registration(fixed, fixed_segmentation, moving, ELASTIX_PATH, TRANSFORMIX_PATH)
     # here we need to take the paths:
-    fixed_image_path = "./TrainingData/p102/mr_bffe.mhd"
-    fixed_image_seg_path = "./TrainingData/p102/prostaat.mhd"
-    moving_image_path = "./TrainingData/p120/mr_bffe.mhd"
-	
+    fixed_image_path = personal_path + "/TrainingData/p102/mr_bffe.mhd"
+    fixed_image_seg_path = personal_path + "/TrainingData/p102/prostaat.mhd"
+    moving_image_path = personal_path + "/TrainingData/p120/mr_bffe.mhd"
+
 	# anytime you want to see visualize different, you can comment this line to avoid waiting too much time
     jacobian_determinant_path = elastix_registration(fixed_image_path, fixed_image_seg_path, moving_image_path, ELASTIX_PATH, TRANSFORMIX_PATH)
 

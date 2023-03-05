@@ -32,7 +32,7 @@ def elastix_registration(fixed_path, fixed_segmented_path, moving_path,  ELASTIX
     el.register(
         fixed_image=fixed_path,
         moving_image=moving_path,
-        parameters=[os.path.join('ImagesforPractical/ImagesforPractical/MR/', 'Parameters_BSpline.txt')],
+        parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_BSpline.txt')],
         output_dir='results')
 
     # apply transform to segmented image for final result
