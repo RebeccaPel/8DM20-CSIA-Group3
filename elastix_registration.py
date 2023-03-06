@@ -32,8 +32,14 @@ def elastix_registration(fixed_path, fixed_segmented_path, moving_path,  ELASTIX
     el.register(
         fixed_image=fixed_path,
         moving_image=moving_path,
-        parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_BSpline.txt')],
+        parameters=[os.path.join('RegistrationParametersFiles/', 'parameterswithpenalty.txt')], #os.path.join('ImagesforPractical/ImagesforPractical/MR/', 'Par0033bspline.txt')],
         output_dir='results')
+    path_transform = './results/TransformParameters.0.txt'
+    with open(path_transform, 'r') as file:
+        filedata = file.read()
+    filedata = filedata.replace("(ResultImagePixelType \"short\")", "(ResultImagePixelType \"float\")")
+    with open(path_transform, 'w') as file:
+        file.write(filedata)
 
     # apply transform to segmented image for final result
     transform = elastix.TransformixInterface(parameters="./results/TransformParameters.0.txt",

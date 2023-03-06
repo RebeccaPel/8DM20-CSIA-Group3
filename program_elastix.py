@@ -1,7 +1,9 @@
+from __future__ import print_function
 import imageio.v2 as imageio
 import matplotlib.pyplot as plt
 import elastix
 import os
+import sys
 import numpy as np
 import SimpleITK as sitk
 import pandas as pd
@@ -40,6 +42,9 @@ if not os.path.exists(TRANSFORMIX_PATH):
     raise IOError('Transformix cannot be found, please set the correct TRANSFORMIX_PATH.')
 
 
+def command_iteration(filter) :
+    print("{0:3} = {1:10.5f}".format(filter.GetElapsedIterations(),
+                                    filter.GetMetric()))
 if __name__ == "__main__":
     # Make a results directory if non exists
     if os.path.exists('results') is False:
@@ -77,7 +82,14 @@ if __name__ == "__main__":
     transformed_bsplined_image = sitk.GetArrayViewFromImage(transformed_bsplined_image_on)
     transformed_bsplined_segmentation_on = sitk.ReadImage(result_path_transf)
     transformed_bsplined_segmentation = sitk.GetArrayViewFromImage(transformed_bsplined_segmentation_on)
+    jacobian_determinant_path = os.path.join('./results/', 'spatialJacobian.mhd')
     slice_nr = 30
+    jacobian_determinant = imageio.imread(jacobian_determinant_path)
+    jacobian_determinant_final = jacobian_determinant > 0
+    jacobian_sitk = sitk.ReadImage(jacobian_determinant_path)
+    jacobian_sitk_array = sitk.GetArrayViewFromImage(jacobian_sitk)
+    print('Minimum value: ', jacobian_sitk_array.min())
+    print('Maximum value: ', jacobian_sitk_array.max())
     # display images and graphs
     fig, axarr = plt.subplots(1, 5)
     plt.suptitle('Slice number: ' + str(slice_nr), fontsize=16)
@@ -86,20 +98,20 @@ if __name__ == "__main__":
     axarr[0].set_title('Fixed image')
     axarr[1].imshow(moving_image[slice_nr, :, :], cmap='gray')
     axarr[1].set_title('Moving image')
-    axarr[1].imshow(transformed_bsplined_segmentation[slice_nr, :, :], alpha=0.8*(transformed_bsplined_segmentation[slice_nr, :, :]>0), cmap='Purples')
+    axarr[1].imshow(transformed_bsplined_segmentation[slice_nr, :, :], alpha=0.5*(transformed_bsplined_segmentation[slice_nr, :, :]>0.9), cmap='Purples')
     axarr[2].imshow(transformed_bsplined_segmentation[slice_nr, :, :], cmap='gray')
     axarr[2].set_title('Resulted B-splined segmentation')
     axarr[3].imshow(transformed_bsplined_image[slice_nr, :, :], cmap='gray')
     axarr[3].set_title('Resulted B-splined image')
-    # axarr[4].imshow(imageio.imread(jacobian_determinant_path.replace('dcm', 'tiff'))[30,:,:])
-    # axarr[4].set_title('Jacobian\ndeterminant')
+    axarr[4].imshow(jacobian_determinant_final[30,:,:])
+    axarr[4].set_title('Jacobian\ndeterminant')
     # plt.axis('off')
 
     plt.tight_layout()
 
     fig2, axarr = plt.subplots(1, 1)
     # Open the logfile into the dictionary log
-    for i in range(4):
+    for i in range(5):
         log_path = os.path.join('results', 'IterationInfo.0.R{}.txt'.format(i))
         log = elastix.logfile(log_path)
         # Plot the 'metric' against the iteration number 'itnr'
