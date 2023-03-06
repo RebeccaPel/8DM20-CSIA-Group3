@@ -16,12 +16,13 @@ from elastix_registration import elastix_registration
 # personal_path = os.path.join(
 #     r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master)
 # Rebecca:
-personal_path = os.path.join(
-    r'C:/Users/20192157/OneDrive - TU Eindhoven/Documents/Master/8DM20 Capita selecta in medical image analysis')
+#personal_path = os.path.join(
+    #r'C:/Users/20192157/OneDrive - TU Eindhoven/Documents/Master/8DM20 Capita selecta in medical image analysis')
 # Ana:
 # personal_path = os.path.join()
 # Karlijn:
-# personal_path = os.path.join()
+personal_path = os.path.join(
+    r'C:/Users/20182943/OneDrive - TU Eindhoven/Master/Jaar 1/Kwartiel 3/Capita Selectia in image Analysis/Image registration')
 # Laura:
 # personal_path = os.path.join()
 # ELASTIX_PATH = os.path.join(
