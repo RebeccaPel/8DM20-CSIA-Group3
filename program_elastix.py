@@ -10,22 +10,13 @@ import pandas as pd
 import subprocess
 from elastix_registration import elastix_registration
 
-# Main path to folder where elastix-5.0.x-win64 and TrainingData is found
-# Uncomment which applies to you
-
-# make sure you select right your .exe paths -> Uncomment your name
+# Main path to folder where elastix-5.0.x-win64 and TrainingData is found:
 # Flavius:
 # personal_path = os.path.join(
 #     r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master)
 # Rebecca:
 personal_path = os.path.join(
     r'C:/Users/20192157/OneDrive - TU Eindhoven/Documents/Master/8DM20 Capita selecta in medical image analysis')
-
-# ELASTIX_PATH = os.path.join(
-#     r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master/Elastix/elastix-5.0.1-win64/elastix.exe')
-# TRANSFORMIX_PATH = os.path.join(
-#     r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master/Elastix/elastix-5.0.1-win64/transformix.exe')
-
 
 ELASTIX_PATH = personal_path + '/elastix-5.0.0-win64/elastix.exe'
 TRANSFORMIX_PATH = personal_path + '/elastix-5.0.0-win64/transformix.exe'
