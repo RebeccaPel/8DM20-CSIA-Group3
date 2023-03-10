@@ -18,13 +18,13 @@ from elastix_registration import elastix_registration
 # personal_path = os.path.join(
 #     r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master)
 # Rebecca:
-#personal_path = os.path.join(
-    #r'C:/Users/20192157/OneDrive - TU Eindhoven/Documents/Master/8DM20 Capita selecta in medical image analysis')
+personal_path = os.path.join(
+    r'C:/Users/20192157/OneDrive - TU Eindhoven/Documents/Master/8DM20 Capita selecta in medical image analysis')
 # Ana:
 # personal_path = os.path.join()
 # Karlijn:
-personal_path = os.path.join(
-    r'C:/Users/20182943/OneDrive - TU Eindhoven/Master/Jaar 1/Kwartiel 3/Capita Selectia in image Analysis/Image registration')
+# personal_path = os.path.join(
+#     r'C:/Users/20182943/OneDrive - TU Eindhoven/Master/Jaar 1/Kwartiel 3/Capita Selectia in image Analysis/Image registration')
 # Laura:
 # personal_path = os.path.join()
 # ELASTIX_PATH = os.path.join(
@@ -58,17 +58,22 @@ if __name__ == "__main__":
 
     # for now, considering patient 120 as moving image
     image_2 = sitk.ReadImage(personal_path + "/TrainingData/p120/mr_bffe.mhd")
+    image_2_seg = sitk.ReadImage(personal_path + "/TrainingData/p120/prostaat.mhd")
     moving_image = sitk.GetArrayViewFromImage(image_2)
+    moving_image_seg = sitk.GetArrayViewFromImage(image_2_seg)
 
     # Perform_elastix_registration(fixed, fixed_segmentation, moving, ELASTIX_PATH, TRANSFORMIX_PATH)
     # here we need to take the paths:
     fixed_image_path = personal_path + "/TrainingData/p102/mr_bffe.mhd"
     fixed_image_seg_path = personal_path + "/TrainingData/p102/prostaat.mhd"
     moving_image_path = personal_path + "/TrainingData/p120/mr_bffe.mhd"
+    moving_image_seg_path = personal_path + "/TrainingData/p120/prostaat.mhd"
 
-	# anytime you want to see visualize different, you can comment this line to avoid waiting too much time
-    jacobian_determinant_path = elastix_registration(fixed_image_path, fixed_image_seg_path, moving_image_path, ELASTIX_PATH, TRANSFORMIX_PATH)
-
+	# Computing the transformation, only needs to be done once.
+    jacobian_determinant_path = elastix_registration(moving_image_path,
+                                                     moving_image_seg_path,
+                                                     fixed_image_path,
+                                                     ELASTIX_PATH, TRANSFORMIX_PATH)
 
     # look at the result image (create the path)
     # result_path = os.path.join('results', 'result.0.tiff')
@@ -85,11 +90,11 @@ if __name__ == "__main__":
     jacobian_determinant_path = os.path.join('./results/', 'spatialJacobian.mhd')
     slice_nr = 30
     jacobian_determinant = imageio.imread(jacobian_determinant_path)
-    jacobian_determinant_final = jacobian_determinant > 0
+    jacobian_determinant_final = jacobian_determinant # > 0
     jacobian_sitk = sitk.ReadImage(jacobian_determinant_path)
     jacobian_sitk_array = sitk.GetArrayViewFromImage(jacobian_sitk)
-    print('Minimum value: ', jacobian_sitk_array.min())
-    print('Maximum value: ', jacobian_sitk_array.max())
+    # print('Minimum value: ', jacobian_sitk_array.min())
+    # print('Maximum value: ', jacobian_sitk_array.max())
     # display images and graphs
     fig, axarr = plt.subplots(1, 5)
     plt.suptitle('Slice number: ' + str(slice_nr), fontsize=16)
@@ -111,8 +116,9 @@ if __name__ == "__main__":
 
     fig2, axarr = plt.subplots(1, 1)
     # Open the logfile into the dictionary log
-    for i in range(5):
-        log_path = os.path.join('results', 'IterationInfo.0.R{}.txt'.format(i))
+    for i in range(4):
+        # log_path = os.path.join('results', f'IterationInfo.0.R{i}.txt')
+        log_path = personal_path + '/results' + f'/IterationInfo.0.R{i}.txt'
         log = elastix.logfile(log_path)
         # Plot the 'metric' against the iteration number 'itnr'
         plt.plot(log['itnr'], log['metric'])

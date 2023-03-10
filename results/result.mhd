@@ -9,5 +9,5 @@ CenterOfRotation = 0 0 0
 AnatomicalOrientation = RAI
 ElementSpacing = 0.48828100000000002 0.48828100000000002 1
 DimSize = 271 333 86
-ElementType = MET_SHORT
+ElementType = MET_FLOAT
 ElementDataFile = result.raw
