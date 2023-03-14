@@ -29,7 +29,7 @@ def elastix_registration(moving_path, moving_segmented_path, fixed_path,  ELASTI
         fixed_image=fixed_path,
         moving_image=moving_path,
         # parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_BSpline.txt')],
-		parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_Affine_def.txt')],#, os.path.join('RegistrationParametersFiles/', 'Parameters_Affine_def.txt')], # os.path.join('RegistrationParametersFiles/', 'Parameters_BSpline_def.txt')],
+		parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_Translation_def.txt')],#, os.path.join('RegistrationParametersFiles/', 'Parameters_Affine_def.txt')], # os.path.join('RegistrationParametersFiles/', 'Parameters_BSpline_def.txt')],
         output_dir='results/'+folder)
     path_transform = 'results/'+folder+'/TransformParameters.0.txt'
     with open(path_transform, 'r') as file:

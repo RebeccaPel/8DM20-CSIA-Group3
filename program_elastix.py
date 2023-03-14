@@ -9,17 +9,22 @@ import SimpleITK as sitk
 import subprocess
 from elastix_registration import elastix_registration
 import seg_metrics.seg_metrics as sg
+from datetime import datetime
 
 # Main path to folder where elastix-5.0.x-win64 is found:
 # Flavius:
-# personal_path = os.path.join(
-#     r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master)
-# Rebecca:
 personal_path = os.path.join(
-    r'C:/Users/20192157/OneDrive - TU Eindhoven/Documents/Master/8DM20 Capita selecta in medical image analysis')
+      r'C:/Utrecht_Stuff/TC/2ndPart/TCdata/Data_Generation-master/Elastix')
 
-ELASTIX_PATH = personal_path + '/elastix-5.0.0-win64/elastix.exe'
-TRANSFORMIX_PATH = personal_path + '/elastix-5.0.0-win64/transformix.exe'
+ELASTIX_PATH = personal_path + '/elastix-5.0.1-win64/elastix.exe'
+TRANSFORMIX_PATH = personal_path + '/elastix-5.0.1-win64/transformix.exe'
+
+# Rebecca:
+# personal_path = os.path.join(
+#     r'C:/Users/20192157/OneDrive - TU Eindhoven/Documents/Master/8DM20 Capita selecta in medical image analysis')
+
+# ELASTIX_PATH = personal_path + '/elastix-5.0.0-win64/elastix.exe'
+# TRANSFORMIX_PATH = personal_path + '/elastix-5.0.0-win64/transformix.exe'
 
 if not os.path.exists(ELASTIX_PATH):
     raise IOError('Elastix cannot be found, please set the correct ELASTIX_PATH.')
@@ -41,11 +46,11 @@ def command_iteration(filter):
 
 def get_array_from_filepath(filepath):
     image = sitk.ReadImage(filepath)
-    image_arr = sitk.GetArrayViewFromImage(image)
+    image_arr = sitk.GetArrayFromImage(image)
     return image_arr
 
 
-def evaluate_images(gdth_file, pred_file, folder_fixed, folder_moving):
+def evaluate_images(gdth_file, pred_file, folder_fixed, folder_moving, write_records):
     read_gdth_image_arr = get_array_from_filepath(gdth_file)
     read_pred_image_arr = get_array_from_filepath(pred_file)
 
@@ -59,7 +64,8 @@ def evaluate_images(gdth_file, pred_file, folder_fixed, folder_moving):
         os.remove(csv_file)
     except OSError:
         pass
-    store_dices, store_precision = [], []
+    store_dices = []
+    store_precision = []
     for i in range(read_gdth_image_arr.shape[0]):
         metrics = sg.write_metrics(labels=[1],  # exclude background
                                    gdth_img=read_gdth_image_arr[i,:,:],
@@ -68,15 +74,17 @@ def evaluate_images(gdth_file, pred_file, folder_fixed, folder_moving):
                                    metrics=['dice', 'precision'])
         store_dices.append(metrics[0]['dice'])
         store_precision.append(metrics[0]['precision'])
+
     take_maximum_index = store_dices.index(max(store_dices))
     # print(store_dices.index(max(store_dices)))
     # print(store_precision[take_maximum_index])
-    write_records = f"./results/{folder_fixed}/_checkmissing_affine.txt"
-    with open(write_records, "a") as file1:
-        file1.write(folder_moving +
-                    " Labels not matching: " + str(len(labels_not_matching)) +
-                    " Dice Score Max: " + str(max(store_dices)) +
-                    " Precision: " + str(store_precision[take_maximum_index]) + "\n")
+
+    file1 = open(write_records, "a")  # append mode
+    file1.write(folder_moving +
+                " Labels not matching: " + str(len(labels_not_matching)) +
+                " Dice Score Max: " + str(max(store_dices)) +
+                " Precision: " + str(store_precision[take_maximum_index]) + "\n")
+    file1.close()
 
 
 def visualise_results(moving_patient,
@@ -131,11 +139,23 @@ def visualise_results(moving_patient,
 
 
 if __name__ == "__main__":
+    start_time = datetime.now()
     # Make a results directory if none exists
     if os.path.exists('results') is False:
         os.mkdir('results')
 
+
+
     patient_1 = "p102"
+
+    #change here the name for the checkmissing file each time you change the parameter file name in elastix_registration
+    write_records = f"./results/{patient_1}_checkmissing_translation.txt"
+
+    # if write_records exists, delete it.
+    try:
+        os.remove(write_records)
+    except OSError:
+        pass
 
     fixed_image_path = f"./TrainingData/{patient_1}/mr_bffe.mhd"
     fixed_image = get_array_from_filepath(fixed_image_path)
@@ -151,15 +171,19 @@ if __name__ == "__main__":
         moving_image_path = f"./TrainingData/{patient}/mr_bffe.mhd"
         moving_image_seg_path = f"./TrainingData/{patient}/prostaat.mhd"
         result_path_transf = f"./results/{patient}/result.mhd"
+        # activate/deactivate registration.
         jacobian_determinant_path = elastix_registration(moving_image_path,
                                                          moving_image_seg_path,
                                                          fixed_image_path,
                                                          ELASTIX_PATH,
                                                          TRANSFORMIX_PATH,
                                                          patient)
-        # evaluate_images(fixed_image_seg_path, result_path_transf, patient_1, patient)
+        evaluate_images(fixed_image_seg_path, result_path_transf, patient_1, patient, write_records)
         print("transformation of ", patient, patient_1, "is done")
-    #
-    # visualise_results("p107",
-    #                   patient_1,
-    #                   43)
+
+    end_time = datetime.now()
+    print('Execution Time: {}'.format(end_time - start_time))
+
+    visualise_results("p107",
+                      patient_1,
+                      43)
