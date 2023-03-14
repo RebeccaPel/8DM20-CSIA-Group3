@@ -2,7 +2,7 @@ import os
 import elastix
 
 def elastix_registration(moving_path, moving_segmented_path, fixed_path,  ELASTIX_PATH,
-                         TRANSFORMIX_PATH):
+                         TRANSFORMIX_PATH, folder):
     '''
     Performs b-spline registration according to the parameters in parameters_blspine.txt
     Saves resulting image, log-files and transformation field in the folder "./results"
@@ -21,15 +21,17 @@ def elastix_registration(moving_path, moving_segmented_path, fixed_path,  ELASTI
     logs
     '''
 
+    if not os.path.exists('results/'+folder):
+        os.makedirs('results/'+folder)
     # Elastix b-spline multi resolution registration
     el = elastix.ElastixInterface(elastix_path=ELASTIX_PATH)
     el.register(
         fixed_image=fixed_path,
         moving_image=moving_path,
         # parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_BSpline.txt')],
-        parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_Affine.txt')],
-        output_dir='results')
-    path_transform = './results/TransformParameters.0.txt'
+		parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_Affine_def.txt')],#, os.path.join('RegistrationParametersFiles/', 'Parameters_Affine_def.txt')], # os.path.join('RegistrationParametersFiles/', 'Parameters_BSpline_def.txt')],
+        output_dir='results/'+folder)
+    path_transform = 'results/'+folder+'/TransformParameters.0.txt'
     with open(path_transform, 'r') as file:
         filedata = file.read()
     filedata = filedata.replace("(ResultImagePixelType \"short\")", "(ResultImagePixelType \"float\")")
@@ -39,15 +41,15 @@ def elastix_registration(moving_path, moving_segmented_path, fixed_path,  ELASTI
     # Apply transform to segmented image for final result
     transform = elastix.TransformixInterface(parameters=path_transform,
                                              transformix_path=TRANSFORMIX_PATH)
-    transform.transform_image(moving_segmented_path, output_dir="./results")
+    transform.transform_image(moving_segmented_path, output_dir="./results/"+folder)
 
     # Get the Jacobian matrix
-    jacobian_matrix_path = transform.jacobian_matrix(output_dir="./results")
+    jacobian_matrix_path = transform.jacobian_matrix(output_dir="./results/"+folder)
 
     # Get the Jacobian determinant
-    jacobian_determinant_path = transform.jacobian_determinant(output_dir="./results")
+    jacobian_determinant_path = transform.jacobian_determinant(output_dir="./results/"+folder)
 
     # Get the full deformation field
-    deformation_field_path = transform.deformation_field(output_dir="./results")
+    deformation_field_path = transform.deformation_field(output_dir="./results/"+folder)
 
     return jacobian_determinant_path
