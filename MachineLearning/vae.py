@@ -155,11 +155,11 @@ class Generator(nn.Module):
         ----------
         z : torch.Tensor
             input to the generator
-        
+
         Returns
         -------
         x : torch.Tensor
-        
+
         """
         x = self.proj_z(z)  # TODO: fully connected layer
         x = self.reshape(x)  # TODO: reshape to image dimensions

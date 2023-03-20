@@ -106,11 +106,9 @@ for epoch in range(N_EPOCHS):
         x_recon, mu, logvar = vae_model(inputs)  # forward
         # Evaluate loss
         loss = vae.vae_loss(inputs, x_recon, mu, logvar)  # get loss
-
-        # Backward pass
-        loss.backward()  # backpropaate loss
-
+        loss.backward()  # backpropagate loss
         current_train_loss += loss.item()
+
         optimizer.step()  # Update parameters (optimize)
 
     # evaluate validation loss
@@ -128,8 +126,9 @@ for epoch in range(N_EPOCHS):
     writer.add_scalar(
         "Loss/validation", current_valid_loss / len(valid_dataloader), epoch
     )
+
     scheduler.step()  # step the learning step scheduler
-    scheduler.step(epoch)
+    # scheduler.step(epoch)
     # save examples of real/fake images
     if (epoch + 1) % DISPLAY_FREQ == 0:
         img_grid = make_grid(
@@ -140,21 +139,32 @@ for epoch in range(N_EPOCHS):
         )
 
     # TODO: sample noise
-    num_preds = 16
-    noise = vae.get_noise(num_preds, Z_DIM)
+    n_preds = 5
+    noise = vae.get_noise(n_preds, Z_DIM)
 
     # TODO: generate images and display
-    figure(figsize=(8, 3), dpi=300)
-    # Z COMES FROM NORMAL(0, 1)
 
-    p = torch.distributions.Normal(torch.zeros_like(mu), torch.ones_like(logvar))  # zero mean and std of one
-    z = p.rsample((num_preds,))
-    # SAMPLE IMAGES
     with torch.no_grad():
-        #     pred = vae.VAE(z.to(device)).cpu()
-        pred = vae.VAE(z).to("cpu")
+        pred = vae_model.generator(noise)
+    """ 
     print("prediction", pred)
-    img = make_grid(pred).permute(1, 2, 0).numpy() * logvar + mu + noise
-    # PLOT IMAGES
-    imshow(img);
+    if (epoch + 1) % DISPLAY_FREQ == 0:
+        img_grid = make_grid(
+            torch.cat((pred[:5], pred[:5])), nrow=4, padding=2, normalize=True
+        )  # nrow=5, padding=12, pad_value=-1
+        writer.add_image(
+            "Synthetic_image", np.clip(img_grid[0][np.newaxis], -1, 1) / 2 + 0.5, epoch + 1
+        )
+    """
+
+# create grid and display
+figure(figsize=(10, 10))
+imshow(
+    np.transpose(
+       make_grid(pred, nrow=n_preds, padding=2, normalize=True).cpu(),
+        (1, 2, 0),
+    )
+)
+
 torch.save(vae_model.state_dict(), CHECKPOINTS_DIR / "vae_model.pth")
+
