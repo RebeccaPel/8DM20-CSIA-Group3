@@ -144,12 +144,15 @@ if __name__ == "__main__":
     if os.path.exists('results') is False:
         os.mkdir('results')
 
+    # patients_list_fixed = [f.name for f in os.scandir("./TrainingData") if f.is_dir()]
 
+    # for patient_fixed in patients_list_fixed:
+    #     patient_1 = patient_fixed
 
     patient_1 = "p102"
 
     #change here the name for the checkmissing file each time you change the parameter file name in elastix_registration
-    write_records = f"./results/{patient_1}_checkmissing_translation.txt"
+    write_records = f"./results/{patient_1}_checkmissing_rigid_affine_bspline.txt"
 
     # if write_records exists, delete it.
     try:
@@ -168,6 +171,7 @@ if __name__ == "__main__":
     print(patients_list)
 
     for patient in patients_list:
+        # if patient == "p107":
         moving_image_path = f"./TrainingData/{patient}/mr_bffe.mhd"
         moving_image_seg_path = f"./TrainingData/{patient}/prostaat.mhd"
         result_path_transf = f"./results/{patient}/result.mhd"

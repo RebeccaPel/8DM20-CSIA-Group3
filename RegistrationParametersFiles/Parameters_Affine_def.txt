@@ -49,7 +49,7 @@
 
 // Automatically guess an initial translation by aligning the
 // geometric centers of the fixed and moving.
-(AutomaticTransformInitialization "true")
+(AutomaticTransformInitialization "false")
 
 // Whether transforms are combined by composition or by addition.
 // In generally, Compose is the best option in most cases.
@@ -96,12 +96,6 @@
 // For more robustness, you may increase this to 1000-2000.
 (MaximumNumberOfIterations 250)
 
-// The step size of the optimizer, in mm. By default the voxel size is used.
-// which usually works well. In case of unusual high-resolution images
-// (eg histology) it is necessary to increase this value a bit, to the size
-// of the "smallest visible structure" in the image:
-//(MaximumStepLength 1.0)
-
 // **************** Image sampling **********************
 
 // Number of spatial samples used to compute the mutual
@@ -123,7 +117,7 @@
 // It may improve accuracy if you set this to 3. Never use 0.
 // An order of 1 gives linear interpolation. This is in most
 // applications a good choice.
-(BSplineInterpolationOrder 1)
+(LinearInterpolator 1)
 
 // Order of B-Spline interpolation used for applying the final
 // deformation.
@@ -143,5 +137,5 @@
 (WriteResultImage "true")
 
 // The pixel type and format of the resulting deformed moving image
-(ResultImagePixelType "short")
+(ResultImagePixelType "float")
 (ResultImageFormat "mhd")

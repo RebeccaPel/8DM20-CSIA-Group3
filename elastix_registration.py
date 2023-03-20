@@ -29,14 +29,15 @@ def elastix_registration(moving_path, moving_segmented_path, fixed_path,  ELASTI
         fixed_image=fixed_path,
         moving_image=moving_path,
         # parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_BSpline.txt')],
-		parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_Translation_def.txt')],#, os.path.join('RegistrationParametersFiles/', 'Parameters_Affine_def.txt')], # os.path.join('RegistrationParametersFiles/', 'Parameters_BSpline_def.txt')],
+		parameters=[os.path.join('RegistrationParametersFiles/', 'Parameters_Rigid_def.txt'),os.path.join('RegistrationParametersFiles/', 'Parameters_Affine_def.txt'), os.path.join('RegistrationParametersFiles/', 'Parameters_BSpline_def.txt')],
         output_dir='results/'+folder)
-    path_transform = 'results/'+folder+'/TransformParameters.0.txt'
-    with open(path_transform, 'r') as file:
-        filedata = file.read()
-    filedata = filedata.replace("(ResultImagePixelType \"short\")", "(ResultImagePixelType \"float\")")
-    with open(path_transform, 'w') as file:
-        file.write(filedata)
+
+    path_transform = 'results/'+folder+'/TransformParameters.2.txt'
+    # with open(path_transform, 'r') as file:
+    #     filedata = file.read()
+    # filedata = filedata.replace("(ResultImagePixelType \"short\")", "(ResultImagePixelType \"float\")")
+    # with open(path_transform, 'w') as file:
+    #     file.write(filedata)
 
     # Apply transform to segmented image for final result
     transform = elastix.TransformixInterface(parameters=path_transform,
