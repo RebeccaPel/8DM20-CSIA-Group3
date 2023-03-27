@@ -49,7 +49,7 @@
 // unrealistic deformations. This is a very important setting!
 // We recommend tuning it for every specific application. It is
 // difficult to come up with a good 'default' value.
-(FinalGridSpacingInPhysicalUnits 16)
+(FinalGridSpacingInPhysicalUnits 32 16 8)
 
 // Alternatively, the grid spacing can be specified in voxel units.
 // To do that, uncomment the following line and comment/remove
@@ -87,7 +87,7 @@
 // The number of resolutions. 1 Is only enough if the expected
 // deformations are small. 3 or 4 mostly works fine. For large
 // images and large deformations, 5 or 6 may even be useful.
-(NumberOfResolutions 4)
+(NumberOfResolutions 3)
 
 // The downsampling/blurring factors for the image pyramids.
 // By default, the images are downsampled by a factor of 2
@@ -95,7 +95,7 @@
 // So, in 2D, with 4 resolutions, the following schedule is used:
 //(ImagePyramidSchedule 8 8  4 4  2 2  1 1 )
 // And in 3D:
-//(ImagePyramidSchedule 8 8 8  4 4 4  2 2 2  1 1 1 )
+(ImagePyramidSchedule 3 3 3  2 2 2  1 1 1 )
 // You can specify any schedule, for example:
 //(ImagePyramidSchedule 4 4  4 3  2 1  1 1 )
 // Make sure that the number of elements equals the number
