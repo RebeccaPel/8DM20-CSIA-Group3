@@ -42,13 +42,15 @@ def elastix_registration(moving_path, moving_segmented_path, fixed_path,  ELASTI
                                              transformix_path=TRANSFORMIX_PATH)
     transform.transform_image(moving_segmented_path, output_dir="./results/" + patient_1 + "/" + folder)
 
-    # Get the Jacobian matrix
-    jacobian_matrix_path = transform.jacobian_matrix(output_dir="./results/" + patient_1 + "/" + folder)
+    # # Get the Jacobian matrix
+    # jacobian_matrix_path = transform.jacobian_matrix(output_dir="./results/" + patient_1 + "/" + folder)
+    #
+    # # Get the Jacobian determinant
+    # jacobian_determinant_path = transform.jacobian_determinant(output_dir="./results/" + patient_1 + "/" + folder)
 
-    # Get the Jacobian determinant
-    jacobian_determinant_path = transform.jacobian_determinant(output_dir="./results/" + patient_1 + "/" + folder)
-
-    # Get the full deformation field
-    deformation_field_path = transform.deformation_field(output_dir="./results/" + patient_1 + "/" + folder)
+    jacobian_determinant_path = "ok"
+    #
+    # # Get the full deformation field
+    # deformation_field_path = transform.deformation_field(output_dir="./results/" + patient_1 + "/" + folder)
 
     return jacobian_determinant_path

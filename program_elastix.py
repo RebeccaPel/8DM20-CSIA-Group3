@@ -55,7 +55,7 @@ def get_array_from_filepath(filepath):
     return image_arr
 
 
-def evaluate_labels(gdth_file, pred_file, folder_fixed, folder_moving, similarity="None"):
+def evaluate_labels(gdth_file, pred_file, folder_fixed, folder_moving, similarity="None", path=None):
     read_gdth_image_arr = get_array_from_filepath(gdth_file)
     read_pred_image_arr = get_array_from_filepath(pred_file)
 
@@ -68,7 +68,7 @@ def evaluate_labels(gdth_file, pred_file, folder_fixed, folder_moving, similarit
     to_write = {'patient': folder_moving, 'dice': str(round(metrics[0]['dice'][0],5)), 'precision':str(round(metrics[0]['precision'][0],5)),
                 'jaccard': str(round(metrics[0]['jaccard'][0],5))}
 
-    path_to_save = r'results/Score_Rigid_Affine_Bspline/'+folder_fixed+'_metrics_'+similarity+'.csv'
+    path_to_save = path+'/'+folder_fixed+'_metrics_'+similarity+'.csv'
 
     if os.path.exists(path_to_save) is False:
         with open(path_to_save, 'a',
@@ -80,6 +80,35 @@ def evaluate_labels(gdth_file, pred_file, folder_fixed, folder_moving, similarit
 
     with open(path_to_save, 'a', newline='') as f:
         fieldnames = ['patient', 'dice', 'precision', 'jaccard']
+        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=';')
+        writer.writerow(to_write)
+        f.close()
+
+def evaluate_labels_on_images(fixed_image, moving_image, folder_fixed, folder_moving, similarity="None", path=None):
+    # read_gdth_image_arr = get_array_from_filepath(gdth_file)
+    # read_pred_image_arr = get_array_from_filepath(pred_file)
+
+    # for i in range(read_gdth_image_arr.shape[0]):
+    metrics = sg.write_metrics(labels=[1],  # exclude background
+                               gdth_img=fixed_image,
+                               pred_img=moving_image,
+                               metrics=['dice', 'precision', 'jaccard'])
+
+    to_write = {'patient_fixed': folder_fixed, 'dice': str(round(metrics[0]['dice'][0],5)), 'precision':str(round(metrics[0]['precision'][0],5)),
+                'jaccard': str(round(metrics[0]['jaccard'][0],5))}
+
+    path_to_save = path
+
+    if os.path.exists(path_to_save) is False:
+        with open(path_to_save, 'a',
+                  newline='') as f:
+            fieldnames = ['patient_fixed', 'dice', 'precision', 'jaccard']
+            writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=';')
+            writer.writeheader()
+            f.close()
+
+    with open(path_to_save, 'a', newline='') as f:
+        fieldnames = ['patient_fixed', 'dice', 'precision', 'jaccard']
         writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=';')
         writer.writerow(to_write)
         f.close()
@@ -136,14 +165,15 @@ def visualise_results(moving_patient,
 
     plt.show()
 
-def run_pipe(patients_list_fixed, similarity=None):
+def run_pipe(patients_list_fixed, similarity=None, registration=False, path_for_score=None):
 
     for patient_fixed in patients_list_fixed:
 
         patient_1 = patient_fixed
 
-        if os.path.exists('results/' + patient_1):
-            shutil.rmtree('results/' + patient_1)
+        if registration is True:
+            if os.path.exists('results/' + patient_1):
+                shutil.rmtree('results/' + patient_1)
 
         # patient_1 = "p107"
 
@@ -188,14 +218,15 @@ def run_pipe(patients_list_fixed, similarity=None):
 
                     # moving_image = get_array_from_filepath(moving_image_path)
                     # activate/deactivate registration.
-                    jacobian_determinant_path = elastix_registration(moving_image_path,
-                                                                     moving_image_seg_path,
-                                                                     fixed_image_path,
-                                                                     ELASTIX_PATH,
-                                                                     TRANSFORMIX_PATH,
-                                                                     patient,
-                                                                     patient_1)
-                    evaluate_labels(fixed_image_seg_path, result_path_transf, patient_1, patient, similarity)
+                    if registration is True:
+                        jacobian_determinant_path = elastix_registration(moving_image_path,
+                                                                         moving_image_seg_path,
+                                                                         fixed_image_path,
+                                                                         ELASTIX_PATH,
+                                                                         TRANSFORMIX_PATH,
+                                                                         patient,
+                                                                         patient_1)
+                    evaluate_labels(fixed_image_seg_path, result_path_transf, patient_1, patient, similarity, path_for_score)
                     print("transformation of ", patient, patient_1, "is done")
 
             elif similarity == "nmi":
@@ -206,14 +237,15 @@ def run_pipe(patients_list_fixed, similarity=None):
 
                     # moving_image = get_array_from_filepath(moving_image_path)
                     # activate/deactivate registration.
-                    jacobian_determinant_path = elastix_registration(moving_image_path,
-                                                                     moving_image_seg_path,
-                                                                     fixed_image_path,
-                                                                     ELASTIX_PATH,
-                                                                     TRANSFORMIX_PATH,
-                                                                     patient,
-                                                                     patient_1)
-                    evaluate_labels(fixed_image_seg_path, result_path_transf, patient_1, patient, similarity)
+                    if registration is True:
+                        jacobian_determinant_path = elastix_registration(moving_image_path,
+                                                                         moving_image_seg_path,
+                                                                         fixed_image_path,
+                                                                         ELASTIX_PATH,
+                                                                         TRANSFORMIX_PATH,
+                                                                         patient,
+                                                                         patient_1)
+                    evaluate_labels(fixed_image_seg_path, result_path_transf, patient_1, patient, similarity, path_for_score)
                     print("transformation of ", patient, patient_1, "is done")
 
             else:
@@ -223,21 +255,22 @@ def run_pipe(patients_list_fixed, similarity=None):
 
                 # moving_image = get_array_from_filepath(moving_image_path)
                 # activate/deactivate registration.
-                jacobian_determinant_path = elastix_registration(moving_image_path,
-                                                                 moving_image_seg_path,
-                                                                 fixed_image_path,
-                                                                 ELASTIX_PATH,
-                                                                 TRANSFORMIX_PATH,
-                                                                 patient,
-                                                                 patient_1)
-                evaluate_labels(fixed_image_seg_path, result_path_transf, patient_1, patient)
+                if registration is True:
+                    jacobian_determinant_path = elastix_registration(moving_image_path,
+                                                                     moving_image_seg_path,
+                                                                     fixed_image_path,
+                                                                     ELASTIX_PATH,
+                                                                     TRANSFORMIX_PATH,
+                                                                     patient,
+                                                                     patient_1)
+                evaluate_labels(fixed_image_seg_path, result_path_transf, patient_1, patient, path_for_score)
                 print("transformation of ", patient, patient_1, "is done")
 
         nmi_dict_2 = {}
         ssim_dict_2 = {}
 
-        path_to_save_ssim = r'results/Score_Rigid_Affine_Bspline/' + patient_1 + '_after_reg_ssim.csv'
-        path_to_save_nmi = r'results/Score_Rigid_Affine_Bspline/' + patient_1 + '_after_reg_nmi.csv'
+        path_to_save_ssim = path_for_score + '/' + patient_1 + '_after_reg_ssim.csv'
+        path_to_save_nmi = path_for_score + '/' + patient_1 + '_after_reg_nmi.csv'
 
         #evaluate_similarity_after_reg
         for patient in patients_list:
