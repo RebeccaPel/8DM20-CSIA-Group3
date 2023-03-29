@@ -14,9 +14,10 @@ random.seed(42)
 
 # directorys with data and to store training checkpoints and logs
 DATA_DIR = Path.cwd() / "TrainingData"
-CHECKPOINTS_DIR = Path.cwd() / "segmentation_model_weights"
+DATA_DIR_SYNT = Path.cwd() / "SyntheticData"
+CHECKPOINTS_DIR = Path.cwd() / "segmentation_model_weights_synthetic"
 CHECKPOINTS_DIR.mkdir(parents=True, exist_ok=True)
-TENSORBOARD_LOGDIR = "segmentation_runs"
+TENSORBOARD_LOGDIR = "segmentation_runs_synthetic"
 
 # training settings and hyperparameters
 NO_VALIDATION_PATIENTS = 2
@@ -25,6 +26,8 @@ BATCH_SIZE = 32
 N_EPOCHS = 100
 LEARNING_RATE = 1e-4
 TOLERANCE = 0.01  # for early stopping
+
+SYNTHETIC = True #Specify if synthetic data should be used
 
 # find patient folders in training directory
 # excluding hidden folders (start with .)
@@ -35,7 +38,14 @@ patients = [
 ]
 random.shuffle(patients)
 
-# split in training/validation after shuffling
+synthetic_patients = [
+    path
+    for path in DATA_DIR_SYNT.glob("*")
+    if not any(part.startswith(".") for part in path.parts)
+]
+random.shuffle(synthetic_patients) #This is not specifically needed for synthetic data as no partitioning is happening
+
+# split in training/validation after shuffling (partition contains the paths to each patient)
 partition = {
     "train": patients[:-NO_VALIDATION_PATIENTS],
     "validation": patients[-NO_VALIDATION_PATIENTS:],
@@ -43,7 +53,18 @@ partition = {
 
 # load training data and create DataLoader with batching and shuffling
 dataset = utils.ProstateMRDataset(partition["train"], IMAGE_SIZE)
-dataloader = DataLoader(
+if SYNTHETIC :
+    synthetic_dataset = utils.SyntheticDataset(synthetic_patients, IMAGE_SIZE)
+    train_dataset = torch.utils.data.ConcatDataset([dataset, synthetic_dataset])
+    dataloader = DataLoader(
+        train_dataset,
+        batch_size=BATCH_SIZE,
+        shuffle=True,
+        drop_last=True,
+        pin_memory=True,
+    )                                    
+else:
+    dataloader = DataLoader(
     dataset,
     batch_size=BATCH_SIZE,
     shuffle=True,
@@ -68,7 +89,6 @@ optimizer = torch.optim.Adam(unet_model.parameters(), lr=LEARNING_RATE)
 
 minimum_valid_loss = 10  # initial validation loss
 writer = SummaryWriter(log_dir=TENSORBOARD_LOGDIR)  # tensorboard summary
-# tensorboard --logdir=segmentation_runs
 
 # training loop
 for epoch in range(N_EPOCHS):

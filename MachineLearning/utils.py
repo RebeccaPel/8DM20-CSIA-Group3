@@ -3,6 +3,7 @@ import SimpleITK as sitk
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
+import PIL
 
 
 class ProstateMRDataset(torch.utils.data.Dataset):
@@ -65,6 +66,8 @@ class ProstateMRDataset(torch.utils.data.Dataset):
         # compute which slice an index corresponds to
         patient = index // self.no_slices
         the_slice = index - (patient * self.no_slices)
+        
+        # print(np.shape(self.mr_image_list[patient]))
 
         return (
             self.norm_transform(
@@ -77,6 +80,74 @@ class ProstateMRDataset(torch.utils.data.Dataset):
             ),
         )
 
+
+class SyntheticDataset(torch.utils.data.Dataset):
+    """Dataset containing synthetic prostate MR images.
+
+    Parameters
+    ----------
+    paths : list[Path]
+        paths to the patient data
+    img_size : list[int]
+        size of images to be interpolated to
+    """
+
+    def __init__(self, paths, img_size):
+        self.mr_image_list = []
+        self.mask_list = []
+        self.img_size = img_size
+        # load images
+        for path in paths:
+            self.mr_image_list.append(
+                sitk.GetArrayFromImage(sitk.ReadImage(path / "mr_bffe.mhd"))
+            )
+            self.mask_list.append(
+                sitk.GetArrayFromImage(sitk.ReadImage(path / "prostaat.mhd"))
+            )
+
+        # number of patients and slices in the dataset
+        self.no_patients = len(self.mr_image_list)
+        self.no_slices = self.mr_image_list[0].shape[0]
+
+        # transforms to tensor images
+        self.img_transform = transforms.Compose(
+            [
+                # transforms.ToPILImage(),
+                # transforms.Resize(img_size),
+                transforms.ToTensor(),
+            ]
+        )
+
+    def __len__(self):
+        """Returns length of dataset"""
+        return self.no_patients * self.no_slices
+
+    def __getitem__(self, index):
+        """Returns the preprocessing MR image and corresponding segementation
+        for a given index.
+
+        Parameters
+        ----------
+        index : int
+            index of the image/segmentation in dataset
+        """
+
+        # compute which slice an index corresponds to
+        patient = index // self.no_slices
+        the_slice = index - (patient * self.no_slices)
+        
+        # print(np.shape(self.mr_image_list[patient]))
+        # print(self.mr_image_list[patient].astype(np.uint8))
+        # print(np.unique(self.mr_image_list[patient]))
+
+        return (
+            self.img_transform(
+                    np.reshape(self.mr_image_list[patient][the_slice, ...].astype(np.int), self.img_size)
+            ),
+            self.img_transform(
+                    np.reshape((self.mask_list[patient][the_slice, ...] > 0).astype(np.int32), self.img_size)
+            ),
+        )
 
 class DiceBCELoss(nn.Module):
     """Loss function, computed as the sum of Dice score and binary cross-entropy.
