@@ -4,20 +4,26 @@ import shutil
 import numpy as np
 import SimpleITK as sitk
 from datetime import datetime
+import csv
 
 from program_elastix import run_pipe, get_array_from_filepath, visualise_results, fast_scandir, evaluate_labels_on_images
 from majority_vote import average_surfaces, label_with_average_surface
 from weighted_decision_fusing import weighted_decision_fusing, show_array
 
 
-def main(majority_voting=True, weighted_decision=True):
+def main(majority_voting=True, weighted_decision=True, top_var=1):
     # Make a results directory if none exists
     if os.path.exists('results') is False:
         os.mkdir('results')
 
     var_important = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
 
-    check_folder = f"./results/Score_" + var_important
+    #settings
+    similarity = "nmi" #'ssim' (structural similarity), 'nmi' (normalized mutual information), or None
+    #if similarity is None, top will be ignored and every fixed image will be registered to all other moving images.
+    top = top_var
+
+    check_folder = f"./results/Score_" + var_important + "_top" + str(top) + "_" + similarity
 
     # create new empty folder Score_Rigid_Affine_Bspline
     if os.path.exists(check_folder) is False:
@@ -31,18 +37,16 @@ def main(majority_voting=True, weighted_decision=True):
     if os.path.exists(check_folder + "/majority_voting/") is False:
         os.mkdir(check_folder + "/majority_voting/")
 
-    #settings
-    similarity = "ssim" #'ssim' (structural similarity), 'nmi' (normalized mutual information), or None
 
     # load patients. now we load patients from TrainingData. Here we can configure to load the unseen patients.
     patients_list_fixed = [f.name for f in os.scandir("./TrainingData") if f.is_dir()]
-
+    patients_list_fixed = patients_list_fixed[:5]
     # run the pipe with 5 patients (patients_list_fixed[:5]) for speed (should be around 7 minutes).
     # Can be executed with 'ssim' (structural similarity), 'nmi' (normalized mutual information), or None
     # set registration to False if you want to only compute metrics of already registered.
     # if you run with similarity None, all fixed images (14) will be registered to the actual one, (see next line)
     # then you can also change patients_list_fixed[:5] to patients_list_fixed, this will register all the other 14 moving images to the actual fixed image
-    run_pipe(patients_list_fixed[:5], similarity=similarity, registration=True, path_for_score=check_folder)
+    run_pipe(patients_list_fixed, similarity=similarity, registration=True, path_for_score=check_folder, top=top)
 
     if majority_voting is True:
 
@@ -91,11 +95,11 @@ def main(majority_voting=True, weighted_decision=True):
             evaluate_labels_on_images(unseen_pat_seg, mv_surface_threshold, saved_fixed_patients[x], "majority_voting",
                                       similarity="None", path=path_to_save)
 
-            # Convert the array to a SimpleITK image
-            write_image = sitk.GetImageFromArray(mv_surface_threshold)
-
-            # Save the image to an MHD file without setting origin, spacing, and direction
-            sitk.WriteImage(write_image, check_folder +"/majority_voting/"+saved_fixed_patients[x]+"_output.mhd")
+            # # Convert the array to a SimpleITK image
+            # write_image = sitk.GetImageFromArray(mv_surface_threshold)
+            #
+            # # Save the image to an MHD file without setting origin, spacing, and direction
+            # sitk.WriteImage(write_image, check_folder +"/majority_voting/"+saved_fixed_patients[x]+"_output.mhd")
 
 
     if weighted_decision is True:
@@ -133,11 +137,13 @@ def main(majority_voting=True, weighted_decision=True):
 
             evaluate_labels_on_images(unseen_pat_seg, outc, saved_fixed_patients[x], "weighted_decision_fusing", similarity="None", path=path_to_save)
 
-            # Convert the array to a SimpleITK image
-            write_image = sitk.GetImageFromArray(outc)
+            # # Convert the array to a SimpleITK image
+            # write_image = sitk.GetImageFromArray(outc)
+            #
+            # # Save the image to an MHD file without setting origin, spacing, and direction
+            # sitk.WriteImage(write_image, check_folder +"/weighted_segmentations/"+saved_fixed_patients[x]+"_output.mhd")
 
-            # Save the image to an MHD file without setting origin, spacing, and direction
-            sitk.WriteImage(write_image, check_folder +"/weighted_segmentations/"+saved_fixed_patients[x]+"_output.mhd")
+    return check_folder
 
 
 # only visualization
@@ -151,8 +157,39 @@ def main(majority_voting=True, weighted_decision=True):
     #                   43, fixed_image_seg)
 
 if __name__ == "__main__":
-    start_time = datetime.now()
-    main()
-    end_time = datetime.now()
-    print('Execution Time: {}'.format(end_time - start_time))
+    # activate/deactivate tops below
+    activate_tops = False
+
+    if activate_tops is True:
+        # set tops from 1 to 7.
+        for i in range(1,8):
+            start_time = datetime.now()
+            check_folder = main(majority_voting=True, weighted_decision=True, top_var=i)
+            end_time = datetime.now()
+            execution_time = end_time - start_time
+            print('Execution Time: {}'.format(execution_time))
+
+            path_to_save_time = check_folder + '/' + 'execution_time.csv'
+
+            to_write = ['execution_time', str(execution_time)]
+
+            with open(path_to_save_time, 'a', newline='') as f:
+                writer = csv.writer(f, delimiter=";")
+                writer.writerows([to_write])
+                f.close()
+    else:
+        start_time = datetime.now()
+        check_folder = main(majority_voting=True, weighted_decision=True, top_var=1)
+        end_time = datetime.now()
+        execution_time = end_time - start_time
+        print('Execution Time: {}'.format(execution_time))
+
+        path_to_save_time = check_folder + '/' + 'execution_time.csv'
+
+        to_write = ['execution_time', str(execution_time)]
+
+        with open(path_to_save_time, 'a', newline='') as f:
+            writer = csv.writer(f, delimiter=";")
+            writer.writerows([to_write])
+            f.close()
 

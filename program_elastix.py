@@ -165,7 +165,7 @@ def visualise_results(moving_patient,
 
     plt.show()
 
-def run_pipe(patients_list_fixed, similarity=None, registration=False, path_for_score=None):
+def run_pipe(patients_list_fixed, similarity=None, registration=False, path_for_score=None, top=2):
 
     for patient_fixed in patients_list_fixed:
 
@@ -201,10 +201,10 @@ def run_pipe(patients_list_fixed, similarity=None, registration=False, path_for_
                 ssim = ssim_inf(fixed_image, moving_image)
                 ssim_dict[patient] = ssim
 
-            max_5_nmi = sorted(nmi_dict, key=nmi_dict.get, reverse=True)[:5]
+            max_5_nmi = sorted(nmi_dict, key=nmi_dict.get, reverse=True)[:top]
             print("Max_5 nmi: ", max_5_nmi)
 
-            max_5_ssim = sorted(ssim_dict, key=ssim_dict.get, reverse=True)[:5]
+            max_5_ssim = sorted(ssim_dict, key=ssim_dict.get, reverse=True)[:top]
             print("Max_5 ssim: ", max_5_ssim)
 
 
