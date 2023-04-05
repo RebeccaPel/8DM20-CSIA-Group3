@@ -177,12 +177,12 @@ def run_pipe(patients_list_fixed, similarity=None, registration=False, path_for_
 
         # patient_1 = "p107"
 
-        fixed_image_path = f"./TrainingData/{patient_1}/mr_bffe.mhd"
+        fixed_image_path = f"./ValidatieData/{patient_1}/mr_bffe.mhd"
         fixed_image = get_array_from_filepath(fixed_image_path)
-        fixed_image_seg_path = f"./TrainingData/{patient_1}/prostaat.mhd"
+        fixed_image_seg_path = f"./ValidatieData/{patient_1}/prostaat.mhd"
 
         patients_list = [f.name for f in os.scandir("./TrainingData") if f.is_dir()]
-        patients_list.remove(patient_1)
+        # patients_list.remove(patient_1)
 
         print(patients_list)
 
@@ -263,7 +263,7 @@ def run_pipe(patients_list_fixed, similarity=None, registration=False, path_for_
                                                                      TRANSFORMIX_PATH,
                                                                      patient,
                                                                      patient_1)
-                evaluate_labels(fixed_image_seg_path, result_path_transf, patient_1, patient, path_for_score)
+                # evaluate_labels(fixed_image_seg_path, result_path_transf, patient_1, patient, similarity, path_for_score)
                 print("transformation of ", patient, patient_1, "is done")
 
         nmi_dict_2 = {}

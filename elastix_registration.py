@@ -12,7 +12,7 @@ def elastix_registration(moving_path, moving_segmented_path, fixed_path,  ELASTI
     Parameters
     ----------
     fixed_path : fixed image file path (string)
-    fixed_segmented_path: fixed image file segmented path (string)
+    moving_segmented_path: moving image file segmented path (string)
     moving_path : moving image file path (string)
     ELASTIX_PATH : Elastix executable file path (string)
     TRANSFORMIX_PATH : Transformix executable file path (string)
