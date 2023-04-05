@@ -17,9 +17,10 @@ class ProstateMRDataset(torch.utils.data.Dataset):
         size of images to be interpolated to
     """
 
-    def __init__(self, paths, img_size):
+    def __init__(self, paths, img_size, augment = False):
         self.mr_image_list = []
         self.mask_list = []
+        self.augment = augment
         # load images
         for path in paths:
             self.mr_image_list.append(
@@ -42,6 +43,14 @@ class ProstateMRDataset(torch.utils.data.Dataset):
                 transforms.ToTensor(),
             ]
         )
+        
+        aug_list = [transforms.RandomResizedCrop(img_size, scale = (0.7, 1.0)), #size of crop is between 0.7 and 1% of the original size
+        transforms.RandomRotation(10),
+        #transforms.ColorJitter(brightness = (0.7, 1), contrast = (0.7,1)), #is not working atm --> gives black images
+        transforms.GaussianBlur(kernel_size=(5,5), sigma=(0.1, 1))] #blurs the image
+        
+        self.img_augment = transforms.RandomChoice(aug_list, p=[1]*len(aug_list))
+        
         # standardise intensities based on mean and std deviation
         self.train_data_mean = np.mean(self.mr_image_list)
         self.train_data_std = np.std(self.mr_image_list)
@@ -68,17 +77,31 @@ class ProstateMRDataset(torch.utils.data.Dataset):
         the_slice = index - (patient * self.no_slices)
         
         # print(np.shape(self.mr_image_list[patient]))
-
-        return (
-            self.norm_transform(
+        
+        if self.augment:
+            return(self.norm_transform(
+                self.img_augment(
                 self.img_transform(
                     self.mr_image_list[patient][the_slice, ...].astype(np.float32)
                 )
-            ),
-            self.img_transform(
+            ),),
+            self.img_augment(
+                self.img_transform(
                 (self.mask_list[patient][the_slice, ...] > 0).astype(np.int32)
-            ),
+            ),)
         )
+        
+        else:
+            return (
+                self.norm_transform(
+                    self.img_transform(
+                        self.mr_image_list[patient][the_slice, ...].astype(np.float32)
+                    )
+                ),
+                self.img_transform(
+                    (self.mask_list[patient][the_slice, ...] > 0).astype(np.int32)
+                ),
+            )
 
 
 class SyntheticDataset(torch.utils.data.Dataset):

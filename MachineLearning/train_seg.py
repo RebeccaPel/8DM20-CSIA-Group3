@@ -14,20 +14,21 @@ random.seed(42)
 
 # directorys with data and to store training checkpoints and logs
 DATA_DIR = Path.cwd() / "TrainingData"
-DATA_DIR_SYNT = Path.cwd() / "SyntheticData"
-CHECKPOINTS_DIR = Path.cwd() / "segmentation_model_weights_synthetic"
+DATA_DIR_SYNT = Path.cwd() / "SyntheticDataLarge"
+CHECKPOINTS_DIR = Path.cwd() / "segmentation_model_weights_augmentation"
 CHECKPOINTS_DIR.mkdir(parents=True, exist_ok=True)
-TENSORBOARD_LOGDIR = "segmentation_runs_synthetic"
+TENSORBOARD_LOGDIR = "segmentation_runs_augmentation"
 
 # training settings and hyperparameters
 NO_VALIDATION_PATIENTS = 2
 IMAGE_SIZE = [64, 64]  # images are made smaller to save training time
 BATCH_SIZE = 32
-N_EPOCHS = 100
+N_EPOCHS = 10
 LEARNING_RATE = 1e-4
 TOLERANCE = 0.01  # for early stopping
 
-SYNTHETIC = True #Specify if synthetic data should be used
+SYNTHETIC = False #Specify if synthetic data should be used
+AUGMENT = True #Specify if real data should be augmented
 
 # find patient folders in training directory
 # excluding hidden folders (start with .)
@@ -52,7 +53,7 @@ partition = {
 }
 
 # load training data and create DataLoader with batching and shuffling
-dataset = utils.ProstateMRDataset(partition["train"], IMAGE_SIZE)
+dataset = utils.ProstateMRDataset(partition["train"], IMAGE_SIZE, augment = AUGMENT)
 if SYNTHETIC :
     synthetic_dataset = utils.SyntheticDataset(synthetic_patients, IMAGE_SIZE)
     train_dataset = torch.utils.data.ConcatDataset([dataset, synthetic_dataset])
