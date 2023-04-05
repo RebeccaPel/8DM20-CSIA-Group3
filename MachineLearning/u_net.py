@@ -103,7 +103,8 @@ class Decoder(nn.Module):
         )
         self.dec_blocks = nn.ModuleList(
             [Block(2 * chs[i], chs[i + 1]) for i in range(len(chs) - 1)]
-        )  # the first argument of the Block is multipled by 2 since you concatenate the features (which creates twice as many).
+        )
+        # the first argument of the Block is multipled by 2 since you concatenate the features (which creates twice as many).
 
     def forward(self, x, encoder_features):
         """Performs the forward pass for all blocks in the decoder.

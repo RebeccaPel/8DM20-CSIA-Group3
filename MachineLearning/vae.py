@@ -6,7 +6,6 @@ l1_loss = torch.nn.L1Loss()
 
 class Block(nn.Module):
     """Basic convolutional building block
-
     Parameters
     ----------
     in_ch : int
@@ -25,7 +24,6 @@ class Block(nn.Module):
 
     def forward(self, x):
         """Performs a forward pass of the block
-
             x : torch.Tensor
                 the input to the block
             torch.Tensor
@@ -49,7 +47,6 @@ class Block(nn.Module):
 
 class Encoder(nn.Module):
     """The encoder part of the VAE.
-
     Parameters
     ----------
     spatial_size : list[int]
@@ -80,12 +77,10 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         """Performs the forward pass for all blocks in the encoder.
-
         Parameters
         ----------
         x : torch.Tensor
             input image to the encoder
-
         Returns
         -------
         list[torch.Tensor]    
@@ -106,7 +101,6 @@ class Encoder(nn.Module):
 
 class Generator(nn.Module):
     """Generator of the VAE
-
     Parameters
     ----------
     z_dim : int 
@@ -150,16 +144,13 @@ class Generator(nn.Module):
 
     def forward(self, z):
         """Performs the forward pass of decoder
-
         Parameters
         ----------
         z : torch.Tensor
             input to the generator
-
         Returns
         -------
         x : torch.Tensor
-
         """
         x = self.proj_z(z)  # TODO: fully connected layer
         x = self.reshape(x)  # TODO: reshape to image dimensions
@@ -224,7 +215,6 @@ class VAE(nn.Module):
 
 def get_noise(n_samples, z_dim, device="cpu"):
     """Creates noise vectors.
-
     Given the dimensions (n_samples, z_dim), creates a tensor of that shape filled with
     random numbers from the normal distribution.
     Parameters
